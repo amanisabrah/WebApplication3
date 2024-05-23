@@ -19,7 +19,6 @@ public partial class AppDbContext : DbContext
         {
             entity.HasKey(e => e.USE_User_ID);
 
-            entity.Property(e => e.USE_User_ID).ValueGeneratedNever();
             entity.Property(e => e.USE_User_Email).HasMaxLength(100);
             entity.Property(e => e.USE_User_Name).HasMaxLength(100);
             entity.Property(e => e.USE_User_Password).HasMaxLength(100);

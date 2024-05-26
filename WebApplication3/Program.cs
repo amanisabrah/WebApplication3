@@ -12,14 +12,11 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();//Add Services to the Container
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-        
+        builder.Services.AddSwaggerGen();      
         builder.Services.AddDbContext<AppDbContext>(options =>
         {
             options.UseSqlServer("Data Source=localhost;Initial Catalog=verb2;User ID=sa;Password=Qwertyuiop@123;Trust Server Certificate=True;");
-        });//transitive service 
-        
-        
+        });//transitive service       
         var app = builder.Build();
         app.SeedDb();
         //Configure the HTTP Request Pipeline
@@ -29,6 +26,7 @@ public class Program
             app.UseSwaggerUI();
         }
         app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
         app.MapGet("/", () => "Hello World!");

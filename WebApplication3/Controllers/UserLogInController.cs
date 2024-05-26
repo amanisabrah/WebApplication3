@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using WebApplication3.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication3.Controllers
 {
@@ -13,11 +14,12 @@ namespace WebApplication3.Controllers
         private readonly AppDbContext _context;
 
         public UserLogInController(AppDbContext context)
-        { 
+        {
             _context = context;
         }
 
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public ActionResult<List<USE_User>> GetUserList()
         {
             return _context.USE_User.ToList();
@@ -26,10 +28,14 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Login(string email, string password)
         {
-            var user = _context.USE_User.SingleOrDefault(x=>x.USE_User_Email == email);
+            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_Email == email);
             if (user == null || user.USE_User_Password != password)
             {
                 return Unauthorized("Invalid email or password.");
+            }
+            if (user.USE_User_IsApproved == false)
+            {
+                return Conflict("User is not approved Yet.");
             }
             return Ok("Login successful");
         }
@@ -37,17 +43,9 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Register(RegisterParam param)
         {
-            var existingUser = _context.USE_User.FirstOrDefault(x => x.USE_User_Email == param.Email);
-
-            if (existingUser != null)
+            if (_context.USE_User.Any(x => x.USE_User_Email == param.Email))
             {
-                if (existingUser.USE_User_IsApproved.HasValue && existingUser.USE_User_IsApproved.Value)
-                    return Conflict("User already exists and is approved.");
-
-                existingUser.USE_User_IsApproved = true;
-                _context.SaveChanges();
-
-                return Ok($"User with email {param.Email} has been approved.");
+                return Conflict("User already exists.");
             }
 
             var newUser = new USE_User
@@ -56,14 +54,12 @@ namespace WebApplication3.Controllers
                 USE_User_Email = param.Email,
                 USE_User_Password = param.Password,
                 USE_User_Phone = param.Phone,
-                USE_User_Gender = param.Gender,
-                USE_User_IsApproved = true
+                USE_User_Gender = param.Gender
             };
-
             _context.USE_User.Add(newUser);
             _context.SaveChanges();
 
-            return Ok($"New user with email {param.Email} has been registered and approved.");
+            return Ok("User registered. Waiting for admin approval.");
         }
 
 

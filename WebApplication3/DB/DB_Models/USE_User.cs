@@ -17,5 +17,5 @@ public partial class USE_User
 
     public string USE_User_Password { get; set; } = null!;
 
-    public bool? USE_User_IsApproved { get; set; }
+    public bool USE_User_IsApproved { get; set; }
 }

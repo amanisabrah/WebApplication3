@@ -28,4 +28,5 @@ public static class DBSeedEx
             dbContext.SaveChanges();
         }
     }
+
 }

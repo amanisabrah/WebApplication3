@@ -1,3 +1,4 @@
+using DB;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Deleteme.Controllers
@@ -31,3 +32,14 @@ namespace Deleteme.Controllers
         }
     }
 }
+//public class UsersController : ControllerBase
+//{
+//    private readonly AppDbContext _context;
+
+//    public UsersController(AppDbContext context)
+//    {
+//        _context = context;
+//    }
+
+//    // Action methods that use _context to interact with the database
+//}

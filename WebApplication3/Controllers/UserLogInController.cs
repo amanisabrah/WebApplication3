@@ -1,9 +1,12 @@
 ﻿using DB;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
-using WebApplication3.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using WebApplication3.Models;
 
 namespace WebApplication3.Controllers
 {
@@ -12,16 +15,21 @@ namespace WebApplication3.Controllers
     public class UserLogInController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserLogInController(AppDbContext context)
+        public UserLogInController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
+
         }
 
         [HttpGet]
         [Authorize(Roles = "admin")]
         public ActionResult<List<USE_User>> GetUserList()
         {
+
+            var userId = User.FindFirst("ClaimTypes.Name")?.Value;
             return _context.USE_User.ToList();
         }
 
@@ -37,7 +45,27 @@ namespace WebApplication3.Controllers
             {
                 return Conflict("User is not approved Yet.");
             }
-            return Ok("Login successful");
+
+            var isAdmin = user.USE_User_Email == "admin@gmail.com";
+            var tokenHandler = new JwtSecurityTokenHandler();
+            //_configuration["JWt:Secret"]
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("ClaimTypes.Name", user.USE_User_Name ?? ""),
+                    new Claim(ClaimTypes.Name, user.USE_User_Name ?? ""),
+                    new Claim(ClaimTypes.Email, user.USE_User_Email ?? ""),
+                    new Claim(ClaimTypes.Role, isAdmin ? "admin" : "user")
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return Ok(new { Token = "Bearer " + tokenString });
         }
 
         [HttpPost]
@@ -61,11 +89,5 @@ namespace WebApplication3.Controllers
 
             return Ok("User registered. Waiting for admin approval.");
         }
-
-
-
-
     }
-
-
 }

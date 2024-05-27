@@ -24,9 +24,13 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AAA_REQ_EntryDate).HasPrecision(0);
             entity.Property(e => e.AAA_REQ_Message).HasMaxLength(100);
 
-            entity.HasOne(d => d.AAA_REQ_USRID_EntryNavigation).WithMany(p => p.AAA_REQ_Requset)
+            entity.HasOne(d => d.AAA_REQ_USRID_EntryNavigation).WithMany(p => p.AAA_REQ_RequsetAAA_REQ_USRID_EntryNavigation)
                 .HasForeignKey(d => d.AAA_REQ_USRID_Entry)
                 .HasConstraintName("FK_USE_TYP_TypeOfRequset_USE_User");
+
+            entity.HasOne(d => d.AAA_REQ_USRID_UpdateNavigation).WithMany(p => p.AAA_REQ_RequsetAAA_REQ_USRID_UpdateNavigation)
+                .HasForeignKey(d => d.AAA_REQ_USRID_Update)
+                .HasConstraintName("FK_AAA_REQ_Requset_AAA_USR_User");
         });
 
         modelBuilder.Entity<AAA_USR_User>(entity =>

@@ -19,5 +19,7 @@ public partial class AAA_USR_User
 
     public bool AAA_USR_IsApproved { get; set; }
 
-    public virtual ICollection<AAA_REQ_Requset> AAA_REQ_Requset { get; set; } = new List<AAA_REQ_Requset>();
+    public virtual ICollection<AAA_REQ_Requset> AAA_REQ_RequsetAAA_REQ_USRID_EntryNavigation { get; set; } = new List<AAA_REQ_Requset>();
+
+    public virtual ICollection<AAA_REQ_Requset> AAA_REQ_RequsetAAA_REQ_USRID_UpdateNavigation { get; set; } = new List<AAA_REQ_Requset>();
 }

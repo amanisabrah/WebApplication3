@@ -16,4 +16,6 @@ public partial class AAA_REQ_Requset
     public DateTime? AAA_REQ_EntryDate { get; set; }
 
     public virtual AAA_USR_User? AAA_REQ_USRID_EntryNavigation { get; set; }
+
+    public virtual AAA_USR_User? AAA_REQ_USRID_UpdateNavigation { get; set; }
 }

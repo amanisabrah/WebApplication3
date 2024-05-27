@@ -18,6 +18,12 @@ namespace WebApplication3.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
+        private int GetUSRID()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
+            return int.Parse(userIdClaim);//converts the string to an int
+        }
+
         public UserLogInController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
@@ -30,10 +36,9 @@ namespace WebApplication3.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult<AAA_USR_User> GetUserList()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
-            var userId = int.Parse(userIdClaim);//converts the string to an int
+            var userId = GetUSRID();
 
-            return Ok(_context.AAA_USR_User.Where(usr=>usr.AAA_USR_ID == userId).Single());
+            return Ok(_context.AAA_USR_User.Where(usr => usr.AAA_USR_ID == userId).Single());
         }
 
         [HttpPost]
@@ -95,7 +100,7 @@ namespace WebApplication3.Controllers
 
         [HttpPut("{id}")]
         //[Authorize(Roles = "admin")]
-        public ActionResult UpdateUserByID(int id,UpdateUserBYIDParam param)
+        public ActionResult UpdateUserByID(int id, UpdateUserBYIDParam param)
         {
             var user = _context.AAA_USR_User.SingleOrDefault(x => x.AAA_USR_ID == id);
             if (user == null)
@@ -149,8 +154,7 @@ namespace WebApplication3.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult<AAA_REQ_Requset> GetAdminList()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
-            var userId = int.Parse(userIdClaim);//converts the string to an int
+            var userId = GetUSRID();
             var req = _context.AAA_REQ_Requset.Where(req => req.AAA_REQ_USRID_Update == userId).ToList();
             return Ok(req);
         }
@@ -159,8 +163,7 @@ namespace WebApplication3.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult<List<AAA_REQ_Requset>> GetReqListForAdmin()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var userId = int.Parse(userIdClaim);
+            var userId = GetUSRID();
             return Ok(_context.AAA_REQ_Requset.ToList());
         }
 
@@ -168,8 +171,7 @@ namespace WebApplication3.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult CreateRequest(CreatReqParm parm)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var userId = int.Parse(userIdClaim);
+            var userId = GetUSRID();
             var newRequest = new AAA_REQ_Requset
             {
                 AAA_REQ_Message = parm.Message,
@@ -187,8 +189,7 @@ namespace WebApplication3.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult UpdateRequest(int id, UpdateReqParm param)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var userId = int.Parse(userIdClaim);
+            var userId = GetUSRID();
             var existingRequest = _context.AAA_REQ_Requset.Find(id);
             if (existingRequest == null)
             {
@@ -205,8 +206,21 @@ namespace WebApplication3.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        // [Authorize(Roles = "admin")]
         public ActionResult<List<AAA_REQ_Requset>> Test1()
+        {
+            var todayDate = DateTime.Today;
+            var entrydate = todayDate.AddDays(-3);
+            var req = _context.AAA_REQ_Requset.Where(u => u.AAA_REQ_Message != null && u.AAA_REQ_Message.Contains("Hello") &&
+                      u.AAA_REQ_EntryDate <= todayDate &&
+                      entrydate < u.AAA_REQ_EntryDate).ToList();
+
+            return Ok(req);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "admin")]
+        public ActionResult<List<AAA_REQ_Requset>> Test2()
         {
             var aliID = _context.AAA_USR_User.Where(u => u.AAA_USR_Name == "Ali").Select(u => u.AAA_USR_ID).ToList();
             if (!aliID.Any())
@@ -217,8 +231,6 @@ namespace WebApplication3.Controllers
             var aliReq = _context.AAA_REQ_Requset.Where(r => aliID.Contains(r.AAA_REQ_USRID_Update.GetValueOrDefault())).ToList();
             return Ok(aliReq);
         }
-
-
         #endregion
     }
 }

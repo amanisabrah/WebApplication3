@@ -13,8 +13,6 @@ namespace WebApplication3;
 
 public class Program
 {
-
-    //public static string Key = "ABC123456789123456789123456789123456789123456789123456789";//read from appsetting.json
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +22,7 @@ public class Program
         {
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = "JWT Authorization",
+                Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
@@ -61,11 +59,11 @@ public class Program
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
+                    ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     //ValidIssuer = "yourIssuer",
                     //ValidAudience = "yourAudience",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Key"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT:Key")!))
                 };
             });
 
@@ -80,28 +78,29 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = string.Empty;
-                c.DefaultModelExpandDepth(2);
-                c.DefaultModelRendering(ModelRendering.Model);
-                c.DefaultModelsExpandDepth(-1);
-                c.DisplayOperationId();
-                c.DisplayRequestDuration();
-                c.DocExpansion(DocExpansion.None);
-                c.EnableDeepLinking();
-                c.EnableFilter();
-                c.MaxDisplayedTags(5);
-                c.ShowExtensions();
-            });
-        }
+            app.UseSwaggerUI(
+                c =>
+                {
+                    c.DocExpansion(DocExpansion.None);
+                    c.EnableFilter();
+
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    c.RoutePrefix = string.Empty;
+                    c.DefaultModelExpandDepth(2);
+                    c.DefaultModelRendering(ModelRendering.Model);
+                    c.DefaultModelsExpandDepth(-1);
+                    c.DisplayOperationId();
+                    c.DisplayRequestDuration();
+                    c.EnableDeepLinking();
+                    c.MaxDisplayedTags(5);
+                    c.ShowExtensions();
+                }
+                );
+            }
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
-        app.MapGet("/", () => "Hello World!");
-        app.MapGet("/Test", () => "Hello Test World!");
         app.Run();
     }
 }

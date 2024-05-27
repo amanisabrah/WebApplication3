@@ -21,16 +21,16 @@ namespace WebApplication3.Controllers
         {
             _context = context;
             _configuration = configuration;
-
         }
 
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public ActionResult<List<USE_User>> GetUserList()
+        public ActionResult<USE_User> GetUserList()
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
+            var userId = int.Parse(userIdClaim);//converts the string to an int
 
-            var userId = User.FindFirst("ClaimTypes.Name")?.Value;
-            return _context.USE_User.ToList();
+            return Ok(_context.USE_User.Where(usr=>usr.USE_User_ID == userId).Single());
         }
 
         [HttpPost]
@@ -45,7 +45,6 @@ namespace WebApplication3.Controllers
             {
                 return Conflict("User is not approved Yet.");
             }
-
             var isAdmin = user.USE_User_Email == "admin@gmail.com";
             var tokenHandler = new JwtSecurityTokenHandler();
             //_configuration["JWt:Secret"]
@@ -54,7 +53,8 @@ namespace WebApplication3.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("ClaimTypes.Name", user.USE_User_Name ?? ""),
+                    //new Claim("ClaimTypes.Name", user.USE_User_Name ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, user.USE_User_ID.ToString()),//Extracts the User_ID from token claims
                     new Claim(ClaimTypes.Name, user.USE_User_Name ?? ""),
                     new Claim(ClaimTypes.Email, user.USE_User_Email ?? ""),
                     new Claim(ClaimTypes.Role, isAdmin ? "admin" : "user")
@@ -88,6 +88,21 @@ namespace WebApplication3.Controllers
             _context.SaveChanges();
 
             return Ok("User registered. Waiting for admin approval.");
+        }
+
+        [HttpDelete("{email}")]
+        [Authorize(Roles = "admin")]
+        public ActionResult DeleteUserByEmail(string email)
+        {
+            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_Email == email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            _context.USE_User.Remove(user);
+            _context.SaveChanges();
+            return Ok("User deleted successfully.");
+
         }
     }
 }

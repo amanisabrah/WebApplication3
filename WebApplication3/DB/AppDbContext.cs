@@ -10,31 +10,32 @@ public partial class AppDbContext : DbContext
         : base(options)
     {
     }
-    public virtual DbSet<USE_TYP_TypeOfRequset> USE_TYP_TypeOfRequset { get; set; }
 
-    public virtual DbSet<USE_User> USE_User { get; set; }
+    public virtual DbSet<AAA_REQ_Requset> AAA_REQ_Requset { get; set; }
+
+    public virtual DbSet<AAA_USR_User> AAA_USR_User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<USE_TYP_TypeOfRequset>(entity =>
+        modelBuilder.Entity<AAA_REQ_Requset>(entity =>
         {
-            entity.HasKey(e => e.USE_TYP_ID);
+            entity.HasKey(e => e.AAA_REQ_ID).HasName("PK_USE_TYP_TypeOfRequset");
 
-            entity.Property(e => e.USE_TYP_MEssage).HasMaxLength(100);
+            entity.Property(e => e.AAA_REQ_Message).HasMaxLength(100);
 
-            entity.HasOne(d => d.USE_TYP_User).WithMany(p => p.USE_TYP_TypeOfRequset)
-                .HasForeignKey(d => d.USE_TYP_UserID)
+            entity.HasOne(d => d.AAA_REQ_USRID_EntryNavigation).WithMany(p => p.AAA_REQ_Requset)
+                .HasForeignKey(d => d.AAA_REQ_USRID_Entry)
                 .HasConstraintName("FK_USE_TYP_TypeOfRequset_USE_User");
         });
 
-        modelBuilder.Entity<USE_User>(entity =>
+        modelBuilder.Entity<AAA_USR_User>(entity =>
         {
-            entity.HasKey(e => e.USE_User_ID);
+            entity.HasKey(e => e.AAA_USR_ID).HasName("PK_USE_User");
 
-            entity.Property(e => e.USE_User_Email).HasMaxLength(100);
-            entity.Property(e => e.USE_User_Name).HasMaxLength(100);
-            entity.Property(e => e.USE_User_Password).HasMaxLength(100);
-            entity.Property(e => e.USE_User_Phone).HasMaxLength(100);
+            entity.Property(e => e.AAA_USR_Email).HasMaxLength(100);
+            entity.Property(e => e.AAA_USR_Name).HasMaxLength(100);
+            entity.Property(e => e.AAA_USR_Password).HasMaxLength(100);
+            entity.Property(e => e.AAA_USR_Phone).HasMaxLength(100);
         });
 
         OnModelCreatingPartial(modelBuilder);

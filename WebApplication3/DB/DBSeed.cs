@@ -16,15 +16,15 @@ public static class DBSeedEx
     //seeding db with initial data
     private static void SeedUser(AppDbContext dbContext)
     {
-        if (!dbContext.USE_User.Any(x => x.USE_User_Name == "admin"))
+        if (!dbContext.AAA_USR_User.Any(x => x.AAA_USR_Name == "admin"))
         {
-            var adminUser = new USE_User
+            var adminUser = new AAA_USR_User
             {
-                USE_User_Name = "admin",
-                USE_User_Email = "admin@gmail.com",
-                USE_User_Password = "admin123",
+                AAA_USR_Name = "admin",
+                AAA_USR_Email = "admin@gmail.com",
+                AAA_USR_Password = "admin123",
             };
-            dbContext.USE_User.Add(adminUser);
+            dbContext.AAA_USR_User.Add(adminUser);
             dbContext.SaveChanges();
         }
     }

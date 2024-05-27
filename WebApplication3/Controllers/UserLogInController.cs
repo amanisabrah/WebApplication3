@@ -22,31 +22,32 @@ namespace WebApplication3.Controllers
             _context = context;
             _configuration = configuration;
         }
+
         #region Users Actions
 
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public ActionResult<USE_User> GetUserList()
+        public ActionResult<AAA_USR_User> GetUserList()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
             var userId = int.Parse(userIdClaim);//converts the string to an int
 
-            return Ok(_context.USE_User.Where(usr=>usr.USE_User_ID == userId).Single());
+            return Ok(_context.AAA_USR_User.Where(usr=>usr.AAA_USR_ID == userId).Single());
         }
 
         [HttpPost]
         public ActionResult Login(string email, string password)
         {
-            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_Email == email);
-            if (user == null || user.USE_User_Password != password)
+            var user = _context.AAA_USR_User.SingleOrDefault(x => x.AAA_USR_Email == email);
+            if (user == null || user.AAA_USR_Password != password)
             {
                 return Unauthorized("Invalid email or password.");
             }
-            if (user.USE_User_IsApproved == false)
+            if (user.AAA_USR_IsApproved == false)
             {
                 return Conflict("User is not approved Yet.");
             }
-            var isAdmin = user.USE_User_Email == "admin@gmail.com";
+            var isAdmin = user.AAA_USR_Email == "admin@gmail.com";
             var tokenHandler = new JwtSecurityTokenHandler();
             //_configuration["JWt:Secret"]
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "");
@@ -54,10 +55,10 @@ namespace WebApplication3.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    //new Claim("ClaimTypes.Name", user.USE_User_Name ?? ""),
-                    new Claim(ClaimTypes.NameIdentifier, user.USE_User_ID.ToString()),//Extracts the User_ID from token claims
-                    new Claim(ClaimTypes.Name, user.USE_User_Name ?? ""),
-                    new Claim(ClaimTypes.Email, user.USE_User_Email ?? ""),
+                    //new Claim("ClaimTypes.Name", user.AAA_USR_Name ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, user.AAA_USR_ID.ToString()),//Extracts the User_ID from token claims
+                    new Claim(ClaimTypes.Name, user.AAA_USR_Name ?? ""),
+                    new Claim(ClaimTypes.Email, user.AAA_USR_Email ?? ""),
                     new Claim(ClaimTypes.Role, isAdmin ? "admin" : "user")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
@@ -72,20 +73,20 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Register(RegisterParam param)
         {
-            if (_context.USE_User.Any(x => x.USE_User_Email == param.Email))
+            if (_context.AAA_USR_User.Any(x => x.AAA_USR_Email == param.Email))
             {
                 return Conflict("User already exists.");
             }
 
-            var newUser = new USE_User
+            var newUser = new AAA_USR_User
             {
-                USE_User_Name = param.Name,
-                USE_User_Email = param.Email,
-                USE_User_Password = param.Password,
-                USE_User_Phone = param.Phone,
-                USE_User_Gender = param.Gender,
+                AAA_USR_Name = param.Name,
+                AAA_USR_Email = param.Email,
+                AAA_USR_Password = param.Password,
+                AAA_USR_Phone = param.Phone,
+                AAA_USR_Gender = param.Gender,
             };
-            _context.USE_User.Add(newUser);
+            _context.AAA_USR_User.Add(newUser);
             _context.SaveChanges();
 
             return Ok("User registered. Waiting for admin approval.");
@@ -95,18 +96,18 @@ namespace WebApplication3.Controllers
         //[Authorize(Roles = "admin")]
         public ActionResult UpdateUserByID(int id,UpdateUserBYIDParam param)
         {
-            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_ID == id);
+            var user = _context.AAA_USR_User.SingleOrDefault(x => x.AAA_USR_ID == id);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
-            if (user.USE_User_ID != 1)
+            if (user.AAA_USR_ID != 1)
             {
-                user.USE_User_Name = param.Name;
-                user.USE_User_Password = param.Password;
-                user.USE_User_Phone = param.Phone;
-                user.USE_User_Email = param.Email;
-                user.USE_User_Gender = param.Gender;
+                user.AAA_USR_Name = param.Name;
+                user.AAA_USR_Password = param.Password;
+                user.AAA_USR_Phone = param.Phone;
+                user.AAA_USR_Email = param.Email;
+                user.AAA_USR_Gender = param.Gender;
             }
             _context.SaveChanges();
 
@@ -117,23 +118,23 @@ namespace WebApplication3.Controllers
         //[Authorize(Roles = "admin")]
         public ActionResult DeleteUserByID(int id)
         {
-            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_ID == id);
+            var user = _context.AAA_USR_User.SingleOrDefault(x => x.AAA_USR_ID == id);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
             var userInformation = new
             {
-                ID = user.USE_User_ID,
-                Name = user.USE_User_Name,
-                Email = user.USE_User_Email,
-                Phone = user.USE_User_Phone,
-                Gender = user.USE_User_Gender
+                ID = user.AAA_USR_ID,
+                Name = user.AAA_USR_Name,
+                Email = user.AAA_USR_Email,
+                Phone = user.AAA_USR_Phone,
+                Gender = user.AAA_USR_Gender
             };
 
-            if (user.USE_User_ID != 1)
+            if (user.AAA_USR_ID != 1)
             {
-                _context.USE_User.Remove(user);
+                _context.AAA_USR_User.Remove(user);
             }
             _context.SaveChanges();
             return Ok(new { Message = "User deleted successfully.", User = userInformation });
@@ -142,40 +143,54 @@ namespace WebApplication3.Controllers
         #endregion
 
         #region Req Actions
-
         [HttpGet]
-        public ActionResult<List<USE_TYP_TypeOfRequset>> GetReqList()
+        public ActionResult<List<AAA_REQ_Requset>> GetReqList()
         {
-            return _context.USE_TYP_TypeOfRequset.ToList();
+            return _context.AAA_REQ_Requset.ToList();
+        }
+          
+        [HttpGet]
+        public ActionResult<List<AAA_REQ_Requset>> GetReqListForAdmin()
+        {
+            return _context.AAA_REQ_Requset.ToList();
         }
 
-
         [HttpPost]
-        public ActionResult CreateRequest(string message, int userID)
+        [Authorize(Roles = "admin")]
+
+        public ActionResult CreateRequest(CreatReqParm parm)
         {
-            var newRequest = new USE_TYP_TypeOfRequset
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var userId = int.Parse(userIdClaim);
+            var newRequest = new AAA_REQ_Requset
             {
-                USE_TYP_MEssage = message,
-                USE_TYP_UserID = userID
+                AAA_REQ_Message = parm.Message,
+                AAA_REQ_USRID_Entry = userId,
+                AAA_REQ_USRID_Update = parm.USRID_Update,
             };
 
-            _context.USE_TYP_TypeOfRequset.Add(newRequest);
+            _context.AAA_REQ_Requset.Add(newRequest);
             _context.SaveChanges();
 
             return Ok("Request created successfully.");
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateRequest(int id, UpdateReq param)
+        [Authorize(Roles = "admin")]
+
+        public ActionResult UpdateRequest(int id, UpdateReqParm param)
         {
-            var existingRequest = _context.USE_TYP_TypeOfRequset.Find(id);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var userId = int.Parse(userIdClaim);
+            var existingRequest = _context.AAA_REQ_Requset.Find(id);
             if (existingRequest == null)
             {
                 return NotFound("Request not found.");
             }
 
-            existingRequest.USE_TYP_MEssage = param.USE_TYP_MEssage;
-            existingRequest.USE_TYP_UserID = param.USE_TYP_UserID;
+            existingRequest.AAA_REQ_Message = param.Message;
+            existingRequest.AAA_REQ_USRID_Entry = userId;
+            existingRequest.AAA_REQ_USRID_Update = param.UserID;
 
             _context.SaveChanges();
 

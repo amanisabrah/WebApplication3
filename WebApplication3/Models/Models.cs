@@ -15,7 +15,7 @@ public partial class RegisterParam
 
 public partial class UpdateUserBYIDParam
 {
-//    public required int USEID { get; set; }
+    public required int USEID { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }
@@ -23,11 +23,24 @@ public partial class UpdateUserBYIDParam
     public required int Gender { get; set; }
 }
 
-public partial class UpdateReq
+public partial class UpdateReqParm
 {
-    public string? USE_TYP_MEssage { get; set; }
+    public int ID { get; set; }
 
-    public int? USE_TYP_UserID { get; set; }
+    public string? Message { get; set; }
+
+    public int? UserID { get; set; }
+
+}
+
+public partial class CreatReqParm
+{
+
+    public string? Message { get; set; }
+
+    public int? UserEntry { get; set; }//admin
+    public int? USRID_Update { get; set; }
+
 
 }
 

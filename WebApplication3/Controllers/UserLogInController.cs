@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using WebApplication3.Models;
@@ -143,21 +144,28 @@ namespace WebApplication3.Controllers
         #endregion
 
         #region Req Actions
+
         [HttpGet]
-        public ActionResult<List<AAA_REQ_Requset>> GetReqList()
+        [Authorize(Roles = "admin")]
+        public ActionResult<AAA_REQ_Requset> GetAdminList()
         {
-            return _context.AAA_REQ_Requset.ToList();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;//string
+            var userId = int.Parse(userIdClaim);//converts the string to an int
+            var req = _context.AAA_REQ_Requset.Where(req => req.AAA_REQ_USRID_Update == userId).ToList();
+            return Ok(req);
         }
-          
+
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public ActionResult<List<AAA_REQ_Requset>> GetReqListForAdmin()
         {
-            return _context.AAA_REQ_Requset.ToList();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var userId = int.Parse(userIdClaim);
+            return Ok(_context.AAA_REQ_Requset.ToList());
         }
 
         [HttpPost]
         [Authorize(Roles = "admin")]
-
         public ActionResult CreateRequest(CreatReqParm parm)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -177,7 +185,6 @@ namespace WebApplication3.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "admin")]
-
         public ActionResult UpdateRequest(int id, UpdateReqParm param)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -196,6 +203,22 @@ namespace WebApplication3.Controllers
 
             return Ok("Request updated successfully.");
         }
+
+        [HttpGet]
+        [Authorize(Roles = "admin")]
+        public ActionResult<List<AAA_REQ_Requset>> Test1()
+        {
+            var aliID = _context.AAA_USR_User.Where(u => u.AAA_USR_Name == "Ali").Select(u => u.AAA_USR_ID).ToList();
+            if (!aliID.Any())
+            {
+                return NotFound("No records found for user Ali.");
+            }
+
+            var aliReq = _context.AAA_REQ_Requset.Where(r => aliID.Contains(r.AAA_REQ_USRID_Update.GetValueOrDefault())).ToList();
+            return Ok(aliReq);
+        }
+
+
         #endregion
     }
 }

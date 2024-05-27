@@ -21,6 +21,7 @@ public partial class AppDbContext : DbContext
         {
             entity.HasKey(e => e.AAA_REQ_ID).HasName("PK_USE_TYP_TypeOfRequset");
 
+            entity.Property(e => e.AAA_REQ_EntryDate).HasPrecision(0);
             entity.Property(e => e.AAA_REQ_Message).HasMaxLength(100);
 
             entity.HasOne(d => d.AAA_REQ_USRID_EntryNavigation).WithMany(p => p.AAA_REQ_Requset)

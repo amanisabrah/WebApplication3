@@ -1,4 +1,5 @@
-﻿using WebApplication3.DB.DB_Models;
+﻿using DB;
+using WebApplication3.DB.DB_Models;
 
 namespace WebApplication3.Models;
 
@@ -20,5 +21,13 @@ public partial class UpdateUserBYIDParam
     public required string Password { get; set; }
     public required string Phone { get; set; }
     public required int Gender { get; set; }
+}
+
+public partial class UpdateReq
+{
+    public string? USE_TYP_MEssage { get; set; }
+
+    public int? USE_TYP_UserID { get; set; }
+
 }
 

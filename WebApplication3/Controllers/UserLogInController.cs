@@ -22,6 +22,7 @@ namespace WebApplication3.Controllers
             _context = context;
             _configuration = configuration;
         }
+        #region Users Actions
 
         [HttpGet]
         [Authorize(Roles = "admin")]
@@ -138,5 +139,48 @@ namespace WebApplication3.Controllers
             return Ok(new { Message = "User deleted successfully.", User = userInformation });
 
         }
+        #endregion
+
+        #region Req Actions
+
+        [HttpGet]
+        public ActionResult<List<USE_TYP_TypeOfRequset>> GetReqList()
+        {
+            return _context.USE_TYP_TypeOfRequset.ToList();
+        }
+
+
+        [HttpPost]
+        public ActionResult CreateRequest(string message, int userID)
+        {
+            var newRequest = new USE_TYP_TypeOfRequset
+            {
+                USE_TYP_MEssage = message,
+                USE_TYP_UserID = userID
+            };
+
+            _context.USE_TYP_TypeOfRequset.Add(newRequest);
+            _context.SaveChanges();
+
+            return Ok("Request created successfully.");
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult UpdateRequest(int id, UpdateReq param)
+        {
+            var existingRequest = _context.USE_TYP_TypeOfRequset.Find(id);
+            if (existingRequest == null)
+            {
+                return NotFound("Request not found.");
+            }
+
+            existingRequest.USE_TYP_MEssage = param.USE_TYP_MEssage;
+            existingRequest.USE_TYP_UserID = param.USE_TYP_UserID;
+
+            _context.SaveChanges();
+
+            return Ok("Request updated successfully.");
+        }
+        #endregion
     }
 }

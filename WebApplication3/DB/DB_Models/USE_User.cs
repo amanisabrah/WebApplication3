@@ -18,4 +18,6 @@ public partial class USE_User
     public string USE_User_Password { get; set; } = null!;
 
     public bool USE_User_IsApproved { get; set; }
+
+    public virtual ICollection<USE_TYP_TypeOfRequset> USE_TYP_TypeOfRequset { get; set; } = new List<USE_TYP_TypeOfRequset>();
 }

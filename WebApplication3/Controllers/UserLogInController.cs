@@ -82,7 +82,7 @@ namespace WebApplication3.Controllers
                 USE_User_Email = param.Email,
                 USE_User_Password = param.Password,
                 USE_User_Phone = param.Phone,
-                USE_User_Gender = param.Gender
+                USE_User_Gender = param.Gender,
             };
             _context.USE_User.Add(newUser);
             _context.SaveChanges();
@@ -90,18 +90,52 @@ namespace WebApplication3.Controllers
             return Ok("User registered. Waiting for admin approval.");
         }
 
-        [HttpDelete("{email}")]
-        [Authorize(Roles = "admin")]
-        public ActionResult DeleteUserByEmail(string email)
+        [HttpPut("{id}")]
+        //[Authorize(Roles = "admin")]
+        public ActionResult UpdateUserByID(int id,UpdateUserBYIDParam param)
         {
-            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_Email == email);
+            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_ID == id);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
-            _context.USE_User.Remove(user);
+            if (user.USE_User_ID != 1)
+            {
+                user.USE_User_Name = param.Name;
+                user.USE_User_Password = param.Password;
+                user.USE_User_Phone = param.Phone;
+                user.USE_User_Email = param.Email;
+                user.USE_User_Gender = param.Gender;
+            }
             _context.SaveChanges();
-            return Ok("User deleted successfully.");
+
+            return Ok("User information updated successfully.");
+        }
+
+        [HttpDelete("{id}")]
+        //[Authorize(Roles = "admin")]
+        public ActionResult DeleteUserByID(int id)
+        {
+            var user = _context.USE_User.SingleOrDefault(x => x.USE_User_ID == id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var userInformation = new
+            {
+                ID = user.USE_User_ID,
+                Name = user.USE_User_Name,
+                Email = user.USE_User_Email,
+                Phone = user.USE_User_Phone,
+                Gender = user.USE_User_Gender
+            };
+
+            if (user.USE_User_ID != 1)
+            {
+                _context.USE_User.Remove(user);
+            }
+            _context.SaveChanges();
+            return Ok(new { Message = "User deleted successfully.", User = userInformation });
 
         }
     }

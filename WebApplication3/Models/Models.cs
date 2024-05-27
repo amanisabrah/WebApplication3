@@ -12,3 +12,13 @@ public partial class RegisterParam
     public required int Gender { get; set; }
 }
 
+public partial class UpdateUserBYIDParam
+{
+//    public required int USEID { get; set; }
+    public required string Name { get; set; }
+    public required string Email { get; set; }
+    public required string Password { get; set; }
+    public required string Phone { get; set; }
+    public required int Gender { get; set; }
+}
+
